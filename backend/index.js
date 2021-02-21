@@ -2,7 +2,6 @@
 const express = require("express");
 const uuid = require("uuid");
 const fs = require("fs");
-const path = require("path");
 const app = express();
 
 app.use(function (req, res, next) {
@@ -10,7 +9,6 @@ app.use(function (req, res, next) {
 });
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, "../src"), { etag: false }));
 
 //BASE END
 

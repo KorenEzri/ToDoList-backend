@@ -4,7 +4,17 @@
       "my-todo": [
         {
           "date": ", added at: 2021-02-21T13:27:11.468 Priority ",
-          "text": "Cyber4s FOR THE WIN",
+          "text": "Cyber4s FOR THE WINSaveCancel",
+          "priority": "1"
+        },
+        {
+          "date": ", added at: 2021-02-21T14:47:5.651 Priority ",
+          "text": "REMOVE THE 1 SEC TIMER FOR A GUD TIME",
+          "priority": "1"
+        },
+        {
+          "date": ", added at: 2021-02-21T14:48:16.460 Priority ",
+          "text": "DOUBE CLICK A TASK TO EDIT IT!",
           "priority": "1"
         },
         {
