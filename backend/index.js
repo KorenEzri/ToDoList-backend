@@ -68,7 +68,7 @@ app.put("/b/:id", (req, res, next) => {
     obj.record.push(req.body);
     let json = JSON.stringify(obj, null, 2);
     fs.writeFile(`backend/bins/${BIN_ID}.json`, json, "utf8", (data) => {
-      res.status(201).send(`bin updated. ${json}`);
+      res.status(201).send(req.body);
     });
   } catch {
     res.status(404).json({
