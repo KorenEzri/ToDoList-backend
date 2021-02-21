@@ -1,0 +1,39 @@
+{
+  "name": "pre-course-2021-final",
+  "version": "1.0.0",
+  "description": "This exam will include most of the topics you learn during the last weeks, feel free go back to the mini tasks you had and use them for solving this exam. This repository include basic structure for todo list application you can change or modify it. [For more details](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div) The task is to create a todo application by following the requirements",
+  "main": "backend/index.js",
+  "scripts": {
+    "test": "jest --verbose",
+    "start": "node index",
+    "dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/listguy/pre-course-2021-final.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/listguy/pre-course-2021-final/issues"
+  },
+  "homepage": "https://github.com/listguy/pre-course-2021-final#readme",
+  "devDependencies": {
+    "@suvelocity/tester": "^1.0.2",
+    "jest": "^26.0.1",
+    "nock": "^13.0.6",
+    "nock-puppeteer": "^1.0.2",
+    "nodemon": "^2.0.7",
+    "puppeteer": "^4.0.0"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "moment": "^2.29.1",
+    "spin.js": "^4.1.0",
+    "sweetalert2": "^10.15.5",
+    "uuid": "^8.3.2"
+  }
+}
