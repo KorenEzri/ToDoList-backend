@@ -3,17 +3,13 @@
     {
       "my-todo": [
         {
-          "date": ", added at: 2021-02-21T13:15:35.955 Priority ",
-          "text": "asd",
+          "date": ", added at: 2021-02-21T13:27:11.468 Priority ",
+          "text": "Cyber4s FOR THE WIN",
           "priority": "1"
         },
         {
-          "date": ", added at: 2021-02-21T13:15:38.632 Priority ",
-          "text": "asd",
-          "priority": "1"
-        },
-        {
-          "amount": 0
+          "amount": 0,
+          "index": []
         }
       ]
     }
