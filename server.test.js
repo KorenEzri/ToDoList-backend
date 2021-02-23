@@ -4,16 +4,16 @@ const request = supertest(app);
 const fs = require("fs");
 const uuid = require("uuid");
 const bins = [];
-const originalAmountofBins = [];
-const currentAmountofBins = [];
+let originalAmountofBins;
+let currentAmountofBins;
 
-describe("GET REQUESTS", () => {
+describe("JSONBIN MOCK", () => {
   it("gets a list of all the bins", async (done) => {
     fs.readdir(`backend/bins/`, "utf8", (err, files) => {
       files.forEach((file) => {
         bins.push(file);
       });
-      originalAmountofBins.push(bins.length);
+      originalAmountofBins = bins.length;
       return bins;
     });
     const response = await request.get("/all");
@@ -56,20 +56,23 @@ describe("GET REQUESTS", () => {
     expect(response.body).toBe(`No bin found by the id of ${binID}`);
     done();
   });
-});
 
-describe("POST REQUESTS", () => {
   it("Can add a new bin", async (done) => {
-    const res = await request.post("/");
-    fs.readdir(`backend/bins/`, "utf8", (err, files) => {
-      bins.length = 0;
-      files.forEach((file) => {
-        bins.push(file);
-      });
-      return bins;
+    const response = await request.post("/");
+    const updatedBinDir = fs.readdirSync(`backend/bins/`);
+    bins.length = 0;
+    updatedBinDir.forEach((file) => {
+      bins.push(file);
     });
-    currentAmountofBins.push(bins.length);
-    expect(currentAmountofBins[0]).toBeGreaterThan(originalAmountofBins[0]);
+    currentAmountofBins = bins.length;
+    expect(currentAmountofBins).toBeGreaterThan(originalAmountofBins);
+    done();
+  });
+
+  it("BONUS can not add a bin with illegal body", async (done) => {
+    const response = await request.send({ kaki: " new kkaki" }).post("/");
+    expect(response.status).toBe(400);
+    expect(response.body).toBe(`s`);
     done();
   });
 });

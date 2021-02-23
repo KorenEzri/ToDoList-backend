@@ -60,6 +60,9 @@ app.post("/", (req, res) => {
   let obj = { record: [] };
   let json = JSON.stringify(obj, null, 2);
   try {
+    if (obj.record[0]) {
+      throw Error("TASK BODY OR BIN BODY ARE MALFORMED.");
+    }
     fs.writeFile(`backend/bins/${binID}.json`, `${json}`, "utf8", () => {
       res.json(`${binID}`);
     });
