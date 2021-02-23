@@ -2,7 +2,7 @@ const app = require("./backend/index.js");
 const supertest = require("supertest");
 const request = supertest(app);
 const fs = require("fs");
-const listofTasks = [];
+listofTasks = [];
 
 it("gets a list of all the bins", async (done) => {
   const response = await request.get("/all");
@@ -13,6 +13,6 @@ it("gets a list of all the bins", async (done) => {
       // listofTasks.shift();
     });
   });
-  expect(JSON.stringify(response.text)).toBe(listofTasks);
+  expect(response.text).toBe(listofTasks);
   done();
 });
