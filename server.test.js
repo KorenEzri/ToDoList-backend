@@ -2,7 +2,10 @@ const app = require("./backend/index.js");
 const supertest = require("supertest");
 const request = supertest(app);
 const fs = require("fs");
+const uuid = require("uuid");
 const bins = [];
+const originalAmountofBins = [];
+const currentAmountofBins = [];
 
 describe("GET REQUESTS", () => {
   it("gets a list of all the bins", async (done) => {
@@ -10,6 +13,7 @@ describe("GET REQUESTS", () => {
       files.forEach((file) => {
         bins.push(file);
       });
+      originalAmountofBins.push(bins.length);
       return bins;
     });
     const response = await request.get("/all");
@@ -40,17 +44,15 @@ describe("GET REQUESTS", () => {
   });
 
   it("if a bin is not found an appropriate response is sent (status + message)", async (done) => {
-    let binID = bins[0].slice(0, -5);
-    let idAtZero = binID[0];
-    if (idAtZero < 9) {
-      idAtZero++;
-    } else idAtZero--;
-    binID = binID.replace(`${binID[0]}`, `${idAtZero}`);
+    const generateID = () => {
+      return uuid.v4();
+    };
+    let binID = generateID();
+    if (bins.includes(binID)) {
+      return (binID = generateID());
+    }
     const response = await request.get(`/b/${binID}`);
-    console.log(binID);
-    console.log(typeof binID);
     expect(response.status).toBe(400);
-    console.log(response.body);
     expect(response.body).toBe(`No bin found by the id of ${binID}`);
     done();
   });
@@ -58,8 +60,16 @@ describe("GET REQUESTS", () => {
 
 describe("POST REQUESTS", () => {
   it("Can add a new bin", async (done) => {
-    const res = await request.put("/");
-
+    const res = await request.post("/");
+    fs.readdir(`backend/bins/`, "utf8", (err, files) => {
+      bins.length = 0;
+      files.forEach((file) => {
+        bins.push(file);
+      });
+      return bins;
+    });
+    currentAmountofBins.push(bins.length);
+    expect(currentAmountofBins[0]).toBeGreaterThan(originalAmountofBins[0]);
     done();
   });
 });
