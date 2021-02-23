@@ -3,7 +3,7 @@ const express = require("express");
 const uuid = require("uuid");
 const fs = require("fs");
 const app = express();
-const listofTasks = [];
+const listOfBins = [];
 
 app.use(function (req, res, next) {
   setTimeout(next, 1000);
@@ -23,14 +23,14 @@ app.use(express.urlencoded({ extended: false }));
 app.get("/all", (req, res) => {
   fs.readdir(`backend/bins/`, "utf8", (err, files) => {
     files.forEach((file) => {
-      listofTasks.push(file);
+      listOfBins.push(file);
     });
-    if (listofTasks.length < 1) {
+    if (listOfBins.length < 1) {
       return res.status(404).json({
         msg: `No bins found`,
       });
     } else {
-      res.status(200).send(listofTasks);
+      res.status(200).send(listOfBins);
     }
   });
 });
@@ -46,7 +46,7 @@ app.get("/b/:id", (req, res) => {
       req.params.id !== "default"
     ) {
       res.status(404).json(`This ID "${req.params.id}" is not a legal bin-ID.`);
-    } else if (!listofTasks.includes(`${req.params.id}.json`)) {
+    } else if (!listOfBins.includes(`${req.params.id}.json`)) {
       res.status(400).json(`No bin found by the id of ${req.params.id}`);
     } else {
       res.status(200).send(JSON.stringify(JSON.parse(data), null, 2));
@@ -59,12 +59,17 @@ app.post("/", (req, res) => {
   const binID = uuid.v4();
   let obj = { record: [] };
   let json = JSON.stringify(obj, null, 2);
+  const response = [];
   try {
-    if (obj.record[0]) {
-      throw Error("TASK BODY OR BIN BODY ARE MALFORMED.");
+    if (req.body) {
+      response.push(
+        new Error(
+          "NEW BIN REQUESTS MUST BE OF EMPTY BINS ONLY. REMOVING DATA AND CREATING AN EMPTY BIN."
+        )
+      );
     }
     fs.writeFile(`backend/bins/${binID}.json`, `${json}`, "utf8", () => {
-      res.json(`${binID}`);
+      res.json(`${response}`);
     });
   } catch {
     res.status(400).send(`ERROR!, ${err}`);
@@ -73,33 +78,49 @@ app.post("/", (req, res) => {
 
 //on PUT request: update the bin according to it's id
 app.put("/b/:id", (req, res, next) => {
-  try {
-    const BIN_ID = req.params.id;
-    let obj = { record: [] };
-    obj.record.push(req.body);
-    let json = JSON.stringify(obj, null, 2);
+  if (
+    !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+      req.params.id
+    ) &&
+    req.params.id !== "cyber4s" &&
+    req.params.id !== "default"
+  ) {
+    res.status(404).json(`This ID "${req.params.id}" is not a legal bin-ID.`);
+  }
+  const BIN_ID = req.params.id;
+  let obj = { record: [] };
+  obj.record.push(req.body);
+  let json = JSON.stringify(obj, null, 2);
+  if (listOfBins.includes(`${BIN_ID}.json`)) {
     fs.writeFile(`backend/bins/${BIN_ID}.json`, json, "utf8", (data) => {
       res.status(201).send(req.body);
     });
-  } catch {
-    res.status(404).json({
-      statusCode: 404,
-      error: true,
-      msg: `File ${BIN_ID} not found`,
-    });
+  } else {
+    res.status(400).json(`File ${BIN_ID} not found`);
   }
 });
 
 //on DELETE request: delete the specified bin
 app.delete("/b/:id", (req, res) => {
-  const id = req.params.id;
-  const path = `backend/bins/${req.params.id}.json`;
-  try {
-    fs.unlinkSync(path);
-    res.send(`Deleted ${id}`);
-  } catch (err) {
-    console.log(err);
-  }
+  const BIN_ID = req.params.id;
+  const path = `backend/bins/${BIN_ID}.json`;
+  if (
+    !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+      BIN_ID
+    ) &&
+    BIN_ID !== "cyber4s" &&
+    BIN_ID !== "default"
+  ) {
+    return res.status(404).json(`This ID "${BIN_ID}" is not a legal bin-ID.`);
+  } else if (!listOfBins.includes(`${BIN_ID}.json`)) {
+    return res.status(400).json(`File ${BIN_ID} not found`);
+  } else
+    try {
+      fs.unlinkSync(path);
+      res.status(204).send(`Deleted ${BIN_ID}`);
+    } catch (err) {
+      console.log(err);
+    }
 });
 
 //ROUTES END
