@@ -1,3 +1,3 @@
 const app = require("./backend/index.js");
 
-app.listen(PORT, () => console.log(`Server Started on port ${PORT}`));
+app.listen("3001", () => console.log(`Server Started on port 3001`));
