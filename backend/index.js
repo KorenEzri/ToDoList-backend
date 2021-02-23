@@ -95,4 +95,4 @@ app.delete("/b/:id", (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, () => console.log(`Server Started on port ${PORT}`));
+module.exports = app;
