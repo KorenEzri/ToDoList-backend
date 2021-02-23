@@ -3,7 +3,6 @@ const express = require("express");
 const uuid = require("uuid");
 const fs = require("fs");
 const app = express();
-const listofTasks = [];
 
 app.use(function (req, res, next) {
   setTimeout(next, 1000);
@@ -22,6 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 //on GET request: show all bin IDs
 app.get("/all", (req, res) => {
   fs.readdir(`backend/bins/`, "utf8", (err, files) => {
+    listofTasks = [];
     files.forEach((file) => {
       listofTasks.push(file);
     });
