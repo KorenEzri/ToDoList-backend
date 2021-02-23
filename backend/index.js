@@ -3,6 +3,7 @@ const express = require("express");
 const uuid = require("uuid");
 const fs = require("fs");
 const app = express();
+const listofTasks = [];
 
 app.use(function (req, res, next) {
   setTimeout(next, 1000);
@@ -21,7 +22,6 @@ app.use(express.urlencoded({ extended: false }));
 //on GET request: show all bin IDs
 app.get("/all", (req, res) => {
   fs.readdir(`backend/bins/`, "utf8", (err, files) => {
-    listofTasks = [];
     files.forEach((file) => {
       listofTasks.push(file);
     });
@@ -38,7 +38,15 @@ app.get("/all", (req, res) => {
 //on GET request: if the specified ID exists, show appropriate bin (show ToDoList basically)
 app.get("/b/:id", (req, res) => {
   fs.readFile(`backend/bins/${req.params.id}.json`, "utf8", (err, data) => {
-    if (!data) {
+    if (
+      !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+        req.params.id
+      ) &&
+      req.params.id !== "cyber4s" &&
+      req.params.id !== "default"
+    ) {
+      res.status(404).json(`This ID "${req.params.id}" is not a legal bin-ID.`);
+    } else if (!listofTasks.includes(`${req.params.id}.json`)) {
       res.status(400).json(`No bin found by the id of ${req.params.id}`);
     } else {
       res.status(200).send(JSON.stringify(JSON.parse(data), null, 2));
