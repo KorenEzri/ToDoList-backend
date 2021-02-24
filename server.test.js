@@ -18,15 +18,6 @@ const countBins = () => {
 };
 
 describe("JSONBIN MOCK", () => {
-  // afterEach(() => {
-  //   const updatedBinDir = fs.readdirSync(`backend/bins/`);
-  //   bins.length = 0;
-  //   updatedBinDir.forEach((file) => {
-  //     bins.push(file);
-  //   });
-  //   currentAmountofBins = bins.length;
-  // });
-
   afterAll(() => {
     countBins();
     let binID = bins[0];
