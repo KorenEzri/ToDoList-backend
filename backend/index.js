@@ -46,7 +46,7 @@ app.get("/b/:id", (req, res) => {
       req.params.id !== "default"
     ) {
       res.status(404).json(`This ID "${req.params.id}" is not a legal bin-ID.`);
-    } else if (!listOfBins.includes(`${req.params.id}.json`)) {
+    } else if (!data) {
       res.status(400).json(`No bin found by the id of ${req.params.id}`);
     } else {
       res.status(200).send(JSON.stringify(JSON.parse(data), null, 2));
@@ -61,13 +61,14 @@ app.post("/", (req, res) => {
   let json = JSON.stringify(obj, null, 2);
   const response = [];
   try {
-    if (req.body) {
-      response.push(
-        new Error(
-          "NEW BIN REQUESTS MUST BE OF EMPTY BINS ONLY. REMOVING DATA AND CREATING AN EMPTY BIN."
-        )
-      );
-    }
+    // if (req.body) {
+    //   response.push(
+    //     new Error(
+    //       "NEW BIN REQUESTS MUST BE OF EMPTY BINS ONLY. REMOVING DATA AND CREATING AN EMPTY BIN."
+    //     )
+    //   );
+    // }
+    response.push(binID);
     fs.writeFile(`backend/bins/${binID}.json`, `${json}`, "utf8", () => {
       res.json(`${response}`);
     });
@@ -91,12 +92,12 @@ app.put("/b/:id", (req, res, next) => {
   let obj = { record: [] };
   obj.record.push(req.body);
   let json = JSON.stringify(obj, null, 2);
-  if (listOfBins.includes(`${BIN_ID}.json`)) {
+  if (!listOfBins.includes(`${BIN_ID}.json`)) {
+    res.status(400).json(`File ${BIN_ID} not found`);
+  } else {
     fs.writeFile(`backend/bins/${BIN_ID}.json`, json, "utf8", (data) => {
       res.status(201).send(req.body);
     });
-  } else {
-    res.status(400).json(`File ${BIN_ID} not found`);
   }
 });
 
@@ -128,3 +129,4 @@ app.delete("/b/:id", (req, res) => {
 const PORT = process.env.PORT || 3001;
 
 module.exports = app;
+// app.listen("3001", () => console.log(`Server Started on port 3001`));

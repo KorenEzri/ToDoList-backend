@@ -4,11 +4,18 @@ const request = supertest(app);
 const fs = require("fs");
 const uuid = require("uuid");
 const bins = [];
+let originalAmountofBins;
+let currentAmountofBins;
 const generateID = () => {
   return uuid.v4();
 };
-let originalAmountofBins;
-let currentAmountofBins;
+const countBins = () => {
+  const updatedBinDir = fs.readdirSync(`backend/bins/`);
+  bins.length = 0;
+  updatedBinDir.forEach((file) => {
+    bins.push(file);
+  });
+};
 
 describe("JSONBIN MOCK", () => {
   // afterEach(() => {
@@ -19,6 +26,38 @@ describe("JSONBIN MOCK", () => {
   //   });
   //   currentAmountofBins = bins.length;
   // });
+
+  afterAll(() => {
+    countBins();
+    let binID = bins[0];
+    let obj = {
+      record: [
+        {
+          "my-todo": [
+            {
+              date: ", added at: 2021-02-24T8:19:3.758 Priority ",
+              text: "Cyber 4s FOR THE WIN (i came from the test suite)",
+              priority: "1",
+            },
+            {
+              amount: 0,
+              index: [],
+            },
+          ],
+        },
+      ],
+    };
+    let json = JSON.stringify(obj, null, 2);
+    if (binID === "default.json") {
+      binID = bins[1];
+    }
+    fs.unlink(`backend/bins/${binID}`, (err) => {
+      return;
+    });
+    fs.writeFile(`backend/bins/cyber4s.json`, `${json}`, "utf8", (err) => {
+      return;
+    });
+  });
 
   it("gets a list of all the bins", async (done) => {
     fs.readdir(`backend/bins/`, "utf8", (err, files) => {
@@ -68,35 +107,38 @@ describe("JSONBIN MOCK", () => {
 
   it("Can add a new bin", async (done) => {
     const response = await request.post("/");
-    const updatedBinDir = fs.readdirSync(`backend/bins/`);
-    bins.length = 0;
-    updatedBinDir.forEach((file) => {
-      bins.push(file);
-    });
+    countBins();
     currentAmountofBins = bins.length;
     expect(currentAmountofBins).toBeGreaterThan(originalAmountofBins);
     done();
   });
 
-  it("BONUS can not add a bin with illegal body", async (done) => {
-    const response = await request.post("/").send({ lucky: " Seven " });
-    expect(response.status).toBe(200);
-    expect(response.body).toBe(
-      `Error: NEW BIN REQUESTS MUST BE OF EMPTY BINS ONLY. REMOVING DATA AND CREATING AN EMPTY BIN.`
-    );
-    done();
-  });
+  // it("BONUS can not add a bin with illegal body", async (done) => {
+  //   const response = await request.post("/").send({ lucky: " Seven " });
+  //   expect(response.status).toBe(200);
+  //   expect(response.body).toBe(
+  //     `Error: NEW BIN REQUESTS MUST BE OF EMPTY BINS ONLY. REMOVING DATA AND CREATING AN EMPTY BIN.`
+  //   );
+  //   done();
+  // });
 
   it("can update a bin by id", async (done) => {
     const binID = bins[1].slice(0, -5);
-    const taskObject = {
-      text: " Cyber4s FTW - I come from server.test.js :) ",
-      priority: "1",
-      date: `"${new Date()}"`,
-    };
-    const response = await request.put(`/b/${binID}`).send(taskObject);
+    const toDoList = [
+      {
+        date: ", added at: 2021-02-24T8:19:3.758 Priority ",
+        text: "Cyber 4s FOR THE WIN (i came from the test suite :))",
+        priority: "1",
+      },
+      {
+        amount: 0,
+        index: [],
+      },
+    ];
+    const reqBodyObj = { "my-todo": toDoList };
+    const response = await request.put(`/b/${binID}`).send(reqBodyObj);
     expect(response.status).toBe(201);
-    expect(response.body).toStrictEqual(taskObject);
+    expect(response.body).toStrictEqual(reqBodyObj);
     allBins = fs.readdirSync(`backend/bins/`);
     bins.length = 0;
     allBins.forEach((bin) => {
@@ -106,11 +148,7 @@ describe("JSONBIN MOCK", () => {
     done();
   });
   it("no new bin is created on update.", async (done) => {
-    const updatedBinDir = fs.readdirSync(`backend/bins/`);
-    bins.length = 0;
-    updatedBinDir.forEach((file) => {
-      bins.push(file);
-    });
+    countBins();
     currentAmountofBins = bins.length;
     expect(currentAmountofBins).toStrictEqual(originalAmountofBins);
     done();
@@ -151,7 +189,7 @@ describe("JSONBIN MOCK", () => {
       bins.push(bin);
     });
     originalAmountofBins = bins.length;
-    const binID = bins[0].slice(0, -5);
+    let binID = bins[bins.indexOf("cyber4s.json")].slice(0, -5);
     const response = await request.delete(`/b/${binID}`);
     const updateBinList = fs.readdirSync(`backend/bins/`);
     bins.length = 0;
@@ -159,13 +197,12 @@ describe("JSONBIN MOCK", () => {
       bins.push(file);
     });
     currentAmountofBins = bins.length;
-    console.log(binID);
     expect(response.status).toBe(204);
     expect(currentAmountofBins).toBeLessThan(originalAmountofBins);
     done();
   });
   it("if an illegal id is requested an appropriate response is sent.", async (done) => {
-    const binID = bins[0].slice(0, -5);
+    const binID = bins[1].slice(0, -5);
     const response = await request.delete(`/b/${binID}.One`);
     expect(response.status).toBe(404);
     expect(response.body).toStrictEqual(
