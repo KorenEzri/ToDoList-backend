@@ -3,7 +3,6 @@ const express = require("express");
 const uuid = require("uuid");
 const fs = require("fs");
 const app = express();
-const listOfBins = [];
 
 app.use(function (req, res, next) {
   setTimeout(next, 1000);
@@ -13,6 +12,15 @@ app.use(express.urlencoded({ extended: false }));
 
 //BASE END
 
+const viewAllBins = () => {
+  const listOfBins = [];
+  const binsDirectory = fs.readdirSync(`backend/bins/`);
+  binsDirectory.forEach((file) => {
+    listOfBins.push(file);
+  });
+  return listOfBins;
+};
+
 //ROUTES
 
 //////////////////////////////////////////////////
@@ -21,18 +29,14 @@ app.use(express.urlencoded({ extended: false }));
 
 //on GET request: show all bin IDs
 app.get("/all", (req, res) => {
-  fs.readdir(`backend/bins/`, "utf8", (err, files) => {
-    files.forEach((file) => {
-      listOfBins.push(file);
+  const listOfBins = viewAllBins();
+  if (listOfBins.length < 1) {
+    return res.status(404).json({
+      msg: `No bins found`,
     });
-    if (listOfBins.length < 1) {
-      return res.status(404).json({
-        msg: `No bins found`,
-      });
-    } else {
-      res.status(200).send(listOfBins);
-    }
-  });
+  } else {
+    res.status(200).send(listOfBins);
+  }
 });
 
 //on GET request: if the specified ID exists, show appropriate bin (show ToDoList basically)
@@ -92,6 +96,8 @@ app.put("/b/:id", (req, res, next) => {
   let obj = { record: [] };
   obj.record.push(req.body);
   let json = JSON.stringify(obj, null, 2);
+  const listOfBins = viewAllBins();
+  console.log(listOfBins);
   if (!listOfBins.includes(`${BIN_ID}.json`)) {
     res.status(400).json(`File ${BIN_ID} not found`);
   } else {
@@ -105,6 +111,7 @@ app.put("/b/:id", (req, res, next) => {
 app.delete("/b/:id", (req, res) => {
   const BIN_ID = req.params.id;
   const path = `backend/bins/${BIN_ID}.json`;
+  const listOfBins = viewAllBins();
   if (
     !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
       BIN_ID
